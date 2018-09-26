@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/stake/types"
@@ -27,6 +28,8 @@ var (
 	RedelegationKey                  = []byte{0x0C} // key for a redelegation
 	RedelegationByValSrcIndexKey     = []byte{0x0D} // prefix for each key for an redelegation, by source validator operator
 	RedelegationByValDstIndexKey     = []byte{0x0E} // prefix for each key for an redelegation, by destination validator operator
+	UnbondingQueueKey                = []byte{0x0F} // prefix for the timestamps in unbonding queue
+	RedelegationQueueKey             = []byte{0x10} // prefix for the timestamps in redelegations queue
 
 	// Keys for store prefixes (transient)
 	TendermintUpdatesTKey = []byte{0x00} // prefix for each key to a validator which is being updated
@@ -154,6 +157,12 @@ func GetUBDsByValIndexKey(valAddr sdk.ValAddress) []byte {
 	return append(UnbondingDelegationByValIndexKey, valAddr.Bytes()...)
 }
 
+// gets the prefix for all unbonding delegations from a delegator
+func GetUnbondingDelegationTimeKey(timestamp time.Time) []byte {
+	bz, _ := timestamp.MarshalBinary()
+	return append(UnbondingQueueKey, bz...)
+}
+
 //________________________________________________________________________________
 
 // gets the key for a redelegation
@@ -206,6 +215,12 @@ func GetREDKeyFromValDstIndexKey(IndexKey []byte) []byte {
 	delAddr := addrs[sdk.AddrLen : 2*sdk.AddrLen]
 	valSrcAddr := addrs[2*sdk.AddrLen:]
 	return GetREDKey(delAddr, valSrcAddr, valDstAddr)
+}
+
+// gets the prefix for all unbonding delegations from a delegator
+func GetRedelegationTimeKey(timestamp time.Time) []byte {
+	bz, _ := timestamp.MarshalBinary()
+	return append(RedelegationQueueKey, bz...)
 }
 
 //______________

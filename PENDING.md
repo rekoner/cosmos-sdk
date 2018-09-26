@@ -40,6 +40,7 @@ BREAKING CHANGES
     * [x/gov] [#2195] Governance uses BFT Time
     * [x/gov] \#2256 Removed slashing for governance non-voting validators
     * [simulation] \#2162 Added back correct supply invariants
+    * [x/stake] \#2393 Removed `CompleteUnbonding` and `CompleteRedelegation` Msg types, and instead added unbonding/redelegation queues to endblocker
     
 * SDK
     * [core] [\#1807](https://github.com/cosmos/cosmos-sdk/issues/1807) Switch from use of rational to decimal
