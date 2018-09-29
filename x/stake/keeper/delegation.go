@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"bytes"
+	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -432,8 +433,15 @@ func (k Keeper) unbond(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValA
 
 	k.SetPool(ctx, pool)
 
+	fmt.Println("zero")
+	validator0, found0 := k.GetValidator(ctx, valAddr)
+	fmt.Println(found0)
+	// fmt.Println(validator0)
+	fmt.Println(validator0.Status)
+
 	// update then remove validator if necessary
 	validator = k.UpdateValidator(ctx, validator)
+	fmt.Println(validator.DelegatorShares.IsZero())
 	if validator.DelegatorShares.IsZero() {
 		k.RemoveValidator(ctx, validator.OperatorAddr)
 	}
@@ -449,6 +457,8 @@ func (k Keeper) getBeginInfo(ctx sdk.Context, params types.Params, valSrcAddr sd
 	minTime time.Time, height int64, completeNow bool) {
 
 	validator, found := k.GetValidator(ctx, valSrcAddr)
+	fmt.Println(validator.Status)
+
 	switch {
 	case !found || validator.Status == sdk.Bonded:
 
@@ -480,14 +490,15 @@ func (k Keeper) BeginUnbonding(ctx sdk.Context,
 		return types.UnbondingDelegation{}, types.ErrExistingUnbondingDelegation(k.Codespace())
 	}
 
+	// create the unbonding delegation
+	params := k.GetParams(ctx)
+	minTime, height, completeNow := k.getBeginInfo(ctx, params, valAddr)
+
 	returnAmount, err := k.unbond(ctx, delAddr, valAddr, sharesAmount)
 	if err != nil {
 		return types.UnbondingDelegation{}, err
 	}
 
-	// create the unbonding delegation
-	params := k.GetParams(ctx)
-	minTime, height, completeNow := k.getBeginInfo(ctx, params, valAddr)
 	balance := sdk.NewCoin(params.BondDenom, returnAmount.RoundInt())
 
 	// no need to create the ubd object just complete now
