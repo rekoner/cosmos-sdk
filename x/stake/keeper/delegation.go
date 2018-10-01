@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"bytes"
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -433,15 +432,8 @@ func (k Keeper) unbond(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValA
 
 	k.SetPool(ctx, pool)
 
-	fmt.Println("zero")
-	validator0, found0 := k.GetValidator(ctx, valAddr)
-	fmt.Println(found0)
-	// fmt.Println(validator0)
-	fmt.Println(validator0.Status)
-
 	// update then remove validator if necessary
 	validator = k.UpdateValidator(ctx, validator)
-	fmt.Println(validator.DelegatorShares.IsZero())
 	if validator.DelegatorShares.IsZero() {
 		k.RemoveValidator(ctx, validator.OperatorAddr)
 	}
@@ -457,7 +449,6 @@ func (k Keeper) getBeginInfo(ctx sdk.Context, params types.Params, valSrcAddr sd
 	minTime time.Time, height int64, completeNow bool) {
 
 	validator, found := k.GetValidator(ctx, valSrcAddr)
-	fmt.Println(validator.Status)
 
 	switch {
 	case !found || validator.Status == sdk.Bonded:
